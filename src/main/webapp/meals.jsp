@@ -14,6 +14,7 @@
             border: 1px solid black; /* Параметры рамки */
         }
 
+
     </style>
 </head>
 <body>
