@@ -1,19 +1,46 @@
 package ru.javawebinar.topjava.model;
 
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@NamedQueries({
+        @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal meal WHERE meal.id=:id AND meal.user.id=:user_id"),
+        @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT meal FROM Meal meal WHERE meal.user.id=:user_id ORDER BY meal.dateTime DESC"),
+        @NamedQuery(name = Meal.UPDATE, query = "UPDATE Meal meal SET meal.dateTime=:dateTime WHERE meal.user.id=:user_id"),
+        @NamedQuery(name = Meal.ALL_BETWEEN_HALF_OPEN, query = "SELECT meal FROM Meal meal WHERE meal.user.id=:user_id  AND meal.dateTime>=:startDateTime AND meal.dateTime<:endDateTime ORDER BY meal.dateTime DESC"),
+        @NamedQuery(name = Meal.GET, query = "SELECT meal FROM Meal meal WHERE meal.id=:id AND meal.user.id=:user_id"),
+})
+
+@Entity
+@Table(name = "meals", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "date_time"}, name = "meals_unique_user_datetime_idx")})
 public class Meal extends AbstractBaseEntity {
+
+    public static final String DELETE = "Meal.delete";
+    public static final String ALL_SORTED = "Meal.getAllSorted";
+    public static final String ALL_BETWEEN_HALF_OPEN = "Meal.getBetweenHalfOpen";
+    public static final String GET = "Meal.get";
+    public static final String UPDATE = "Meal.update";
+
+    @Column(name = "date_time", nullable = false, unique = true, columnDefinition = "timestamp")
+    @NotNull
     private LocalDateTime dateTime;
 
+    @Column(name = "description", nullable = false)
+    @NotBlank
     private String description;
 
+    @Column(name = "calories", nullable = false)
+    @NotNull
     private int calories;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotNull
     private User user;
 
     public Meal() {
